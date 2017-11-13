@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormBuilder, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
-
+import { FormGroup, FormBuilder, Validators, AbstractControl, ValidatorFn, FormArray } from '@angular/forms';
+import 'rxjs/add/operator/debounceTime';
 import { Customer } from './customer';
 
 /*
@@ -53,32 +53,61 @@ export class CustomerComponent implements OnInit  {
     emailMessage: string;
     confirmEmailMessage: string;
 
-    private validationMessages = {
+    get addresses(): FormArray {
+        return <FormArray>this.customerForm.get('addresses');
+    }
+
+    // Validation messages are key and value pair. Keys should match
+    private validationMessagesEmail = {
         required: 'Please enter your email address.',
         pattern: 'Please enter a valid email address.'
     };
-
+/*
+    private validationMessagesConfirmEmail = {
+        required: 'Please confirm your email address.',
+        match: 'The confirmation email does not match the email address'
+    };
+*/
     constructor(private fb: FormBuilder){}
     
     ngOnInit(): void {
+        // Form Builder
         this.customerForm = this.fb.group({
             firstName:['', [Validators.required, Validators.minLength(3)]],
             lastName:['', [Validators.required, Validators.maxLength(50)]],
             emailGroup: this.fb.group({
                 email:['', [Validators.required, Validators.pattern('[a-z0-9._%+-]+@[a-z0-9.-]+')]],
-                confirmEmail:['', Validators.required],   
+                confirmEmail:['', [Validators.required]],   
             }, { validator : emailMatcher }),                     
             phone: '',
             notification: 'email',
             rating: ['', ratingRange(1,5)],
-            sendCatalog: true
+            sendCatalog: true,
+            addresses: this.fb.array([this.buildAddress()])         
         });
 
         this.customerForm.get('notification').valueChanges
             .subscribe(value => this.setNotification(value));
 
         const emailControl = this.customerForm.get('emailGroup.email');
-        emailControl.valueChanges.subscribe(value => this.setMessage(emailControl));
+        //const confirmEmailControl = this.customerForm.get('emailGroup.confirmEmail');
+        emailControl.valueChanges.debounceTime(1000).subscribe(value => this.setMessage(emailControl));
+        //confirmEmailControl.valueChanges.subscribe(value => this.setMessage(confirmEmailControl));
+    }
+
+    addAddress(): void{
+        this.addresses.push(this.buildAddress());
+    }
+
+    buildAddress(): FormGroup{
+        return this.fb.group({
+            addressType: 'home',
+            street1: '',
+            street2: '',
+            city: '',
+            state: '',
+            zip: ''
+        });  
     }
 
     populateTestData(): void{
@@ -97,11 +126,22 @@ export class CustomerComponent implements OnInit  {
 
     setMessage(c: AbstractControl): void {
         this.emailMessage = '';
-        if((c.touched || c.dirty) && c.errors){
-            // key is the validation rule name
-            this.emailMessage = Object.keys(c.errors).map(key=> 
-                this.validationMessages[key]).join(' ');
+        //this.confirmEmailMessage = '';
+
+        // key is the validation rule name
+        if(c === this.customerForm.get('emailGroup.email')){
+            if((c.touched || c.dirty) && c.errors){
+                this.emailMessage = Object.keys(c.errors).map(key=> 
+                    this.validationMessagesEmail[key]).join(' ');
+            }
         }
+        /*if(c === this.customerForm.get('emailGroup.confirmEmail')){
+            if((c.touched || c.dirty) && (c.errors || this.customerForm.get('emailGroup').errors)){
+
+                this.confirmEmailMessage = Object.keys(c.errors).map(key=> 
+                    this.validationMessagesConfirmEmail[key]).join(' ');
+            }
+        }  */      
     }
 
     setNotification(notifyVia: string): void{

@@ -1,13 +1,13 @@
 export class Customer {
 
     constructor(public firstName = '',
-        public lastName = '',
-        public email = '',
-        public sendCatalog = false,
-        public addressType = 'home',
+        public lastName: string = '',
+        public email:string = '',
+        public sendCatalog:boolean = false,
+        public addressType:string = 'home',
         public street1?: string,
         public street2?: string,
         public city?: string,
-        public state = '',
+        public state:string = '',
         public zip?: string) { }
 }
