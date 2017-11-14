@@ -10,6 +10,7 @@ import 'rxjs/add/observable/of';
 
 import { IProduct } from './product';
 
+// Since this is a service
 @Injectable()
 export class ProductService {
     private baseUrl = 'api/products';

@@ -74,6 +74,7 @@ export class ProductEditComponent implements OnInit, AfterViewInit, OnDestroy {
         });
 
         // Read the product Id from the route parameter
+        // Everytime the parameter changes, this code runs
         this.sub = this.route.params.subscribe(
             params => {
                 let id = +params['id'];

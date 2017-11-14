@@ -28,6 +28,7 @@ import { SharedModule } from '../shared/shared.module';
         component: ProductDetailComponent
       },
       { path: 'productEdit/:id',
+        // These are guards
         canDeactivate: [ ProductEditGuard ],
         component: ProductEditComponent },
     ])

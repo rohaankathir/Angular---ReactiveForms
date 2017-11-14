@@ -3,6 +3,7 @@ import { ActivatedRouteSnapshot, CanActivate, Router, CanDeactivate } from '@ang
 
 import { ProductEditComponent } from './product-edit.component';
 
+// Since this is a service we have to use this. Best preactice
 @Injectable()
 export  class ProductDetailGuard implements CanActivate {
 
